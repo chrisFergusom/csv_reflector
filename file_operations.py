@@ -1,3 +1,5 @@
+#file_operations.py
+
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 import pandas as pd
 from button_tracking import track_button_press
@@ -13,6 +15,9 @@ def load_file(gui):
                 gui.df = pd.read_excel(file_path)
             elif file_type.startswith('JSON'):
                 gui.df = load_json(file_path)
+            gui.original_df = gui.df.copy()  # Store the original dataframe
+            gui.original_dtypes = gui.df.dtypes.to_dict()
+            gui.original_columns = gui.df.columns.tolist()
             display_data_with_info(gui)
         except Exception as e:
             QMessageBox.critical(gui, "Error", f"Failed to load file: {str(e)}")

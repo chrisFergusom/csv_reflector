@@ -1,5 +1,6 @@
 # button_tracking.py
 
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QTextEdit
 import json
 from datetime import datetime
 import pandas as pd
@@ -26,10 +27,25 @@ def get_category(button, button_categories):
             return category
     return 'Unknown'
 
+def show_button_log_popup(gui):
+    dialog = QDialog(gui)
+    dialog.setWindowTitle("Button Log")
+    layout = QVBoxLayout()
+    text_edit = QTextEdit()
+    text_edit.setFont(gui.courier_font)
+    text_edit.setReadOnly(True)
+    
+    log_text = "\n".join([f"{timestamp}: {button}" for timestamp, button in gui.button_log.items()])
+    text_edit.setText(log_text)
+    
+    layout.addWidget(text_edit)
+    dialog.setLayout(layout)
+    dialog.resize(400, 300)
+    dialog.exec()
+
 def show_button_info(gui):
     track_button_press('Button Info', gui.button_log)
     df = pd.DataFrame.from_dict(gui.button_log, orient='index', columns=['Button'])
-    print(df)
     df.index = pd.to_datetime(df.index)
 
     button_counts = df['Button'].value_counts()
@@ -48,3 +64,4 @@ def show_button_info(gui):
         gui.text_widget.append("")
 
     show_charts(df, gui)
+    show_button_log_popup(gui)

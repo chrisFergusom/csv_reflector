@@ -58,14 +58,17 @@ def apply_operation(gui, operation):
         gui.df.columns = [str(val) for val in gui.df.iloc[0]]
         gui.df = gui.df.iloc[1:].reset_index(drop=True)
     elif operation == 'random':
-        # Randomly swap all data values and column names.
-        all_values = gui.df.columns.tolist() + gui.df.values.flatten().tolist()
-        np.random.shuffle(all_values)
-        total_elements = len(all_values)
-        new_cols = int(np.sqrt(total_elements))
-        new_rows = total_elements // 
-        reshaped_values = np.array(all_values[:new_rows * new_cols]).reshape(new_rows, new_cols)
-        gui.df = pd.DataFrame(reshaped_values[1:], columns=reshaped_values[0])
+        # Scramble column names
+        new_columns = gui.df.columns.tolist()
+        np.random.shuffle(new_columns)
+        # Create a copy of the dataframe with scrambled data
+        scrambled_df = gui.df.copy()
+        # Scramble data within each column
+        for col in scrambled_df.columns:
+            scrambled_df[col] = scrambled_df[col].sample(frac=1).reset_index(drop=True)
+        # Assign scrambled column names
+        scrambled_df.columns = new_columns
+        gui.df = scrambled_df
     elif operation == 'restore':
         if gui.original_df is not None:
             gui.df = gui.original_df.copy()

@@ -35,6 +35,7 @@ def apply_operation(gui, operation):
     if not hasattr(gui, 'original_columns'):
         gui.original_dtypes = gui.df.dtypes.to_dict()
         gui.original_columns = gui.df.columns.tolist()
+        gui.original_df = gui.df.copy()
 
     if operation == 'rotate':
         # Rotate column names and data 180 degrees
@@ -56,6 +57,21 @@ def apply_operation(gui, operation):
         gui.df = gui.df.iloc[::-1].reset_index(drop=True)
         gui.df.columns = [str(val) for val in gui.df.iloc[0]]
         gui.df = gui.df.iloc[1:].reset_index(drop=True)
+    elif operation == 'random':
+        # Randomly swap all data values and column names.
+        all_values = gui.df.columns.tolist() + gui.df.values.flatten().tolist()
+        np.random.shuffle(all_values)
+        total_elements = len(all_values)
+        new_cols = int(np.sqrt(total_elements))
+        new_rows = total_elements // 
+        reshaped_values = np.array(all_values[:new_rows * new_cols]).reshape(new_rows, new_cols)
+        gui.df = pd.DataFrame(reshaped_values[1:], columns=reshaped_values[0])
+    elif operation == 'restore':
+        if gui.original_df is not None:
+            gui.df = gui.original_df.copy()
+        else:
+            QMessageBox.information(gui, "Info", "No original data to restore.")
+            return
 
     if is_original_state(gui):
         restore_original_dtypes(gui)
@@ -73,3 +89,11 @@ def reflect_data(gui):
 def flip_data(gui):
     track_button_press('Flip', gui.button_log)
     apply_operation(gui, 'flip')
+
+def random_data(gui):
+    track_button_press('Random', gui.button_log)
+    apply_operation(gui, 'random')
+
+def restore_data(gui):
+    track_button_press('Restore', gui.button_log)
+    apply_operation(gui, 'restore')

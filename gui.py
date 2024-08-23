@@ -1,7 +1,7 @@
 # gui.py
 
-from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTextEdit
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTextEdit, QMessageBox
+from PyQt6.QtGui import QFont
 from datetime import datetime
 import atexit
 from collections import OrderedDict
@@ -79,6 +79,8 @@ class CSVGUI(QMainWindow):
         self.layout = QVBoxLayout()
         self.central_widget.setLayout(self.layout)
         self.text_widget = QTextEdit()
+        self.courier_font = QFont("Courier")
+        self.text_widget.setFont(self.courier_font)
         self.layout.addWidget(self.text_widget)
 
     def show_about(self):

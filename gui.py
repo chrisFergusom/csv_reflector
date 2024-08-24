@@ -2,16 +2,14 @@
 
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTextEdit, QMessageBox
 from PyQt6.QtGui import QFont
-from datetime import datetime
 import atexit
 from collections import OrderedDict
 
 from file_operations import load_file, save_file
 from data_operations import reflect_data, flip_data, rotate_data, random_data, restore_data
 from button_tracking import load_button_log, save_button_log, track_button_press, show_button_info
-from haiku_generator import generate_haiku
-from search_operations import search_wikipedia
 from text_formatting import apply_text_formatting
+from plugin_manager import PluginManager
 
 class CSVGUI(QMainWindow):
     def __init__(self):
@@ -24,12 +22,18 @@ class CSVGUI(QMainWindow):
         self.button_categories = OrderedDict([
             ('File', ['Load', 'Save', 'Exit']),
             ('Edit', ['Reflect', 'Flip', 'Rotate', 'Random', 'Restore']),
-            ('Options', ['Text']),  # Add this line
-            ('Info', ['About', 'Date', '"Reflect"', 'Button Info', 'Search'])
+            ('Options', ['Text']),
+            ('Info', ['About', 'Button Info']),
+            ('Plugins', [])  # This should be an empty list
         ])
-        self.button_log_file = 'button_log.json'
+        self.button_log_file = 'data/button_log.json'
         self.button_log = load_button_log(self.button_log_file)
         atexit.register(self.save_button_log)
+        
+        # Initialize plugin manager
+        self.plugin_manager = PluginManager()
+        self.plugin_manager.load_plugins('plugins')  # Load plugins from 'plugins' directory
+        
         self.create_menu()
         self.create_text_widget()
         self.show()
@@ -64,14 +68,20 @@ class CSVGUI(QMainWindow):
         info_menu = menubar.addMenu("Info")
         about_action = info_menu.addAction("About")
         about_action.triggered.connect(self.show_about)
-        date_action = info_menu.addAction("Date")
-        date_action.triggered.connect(self.show_date)
-        haiku_action = info_menu.addAction('"Reflect"')
-        haiku_action.triggered.connect(lambda: generate_haiku(self))
         button_info_action = info_menu.addAction("Button Info")
         button_info_action.triggered.connect(lambda: show_button_info(self))
-        search_action = info_menu.addAction("Search")
-        search_action.triggered.connect(lambda: search_wikipedia(self))
+
+        # Add Plugins menu
+        plugins_menu = menubar.addMenu("Plugins")
+        for plugin_name, plugin_info in self.plugin_manager.get_all_plugins().items():
+            plugin_action = plugins_menu.addAction(plugin_info['name'])
+            plugin_action.triggered.connect(lambda checked, p=plugin_name: self.run_plugin(p))
+
+    def run_plugin(self, plugin_name):
+        plugin = self.plugin_manager.get_plugin(plugin_name)
+        if plugin and 'run' in plugin:
+            track_button_press(f'Plugin: {plugin["name"]}', self.button_log, self.button_categories)
+            plugin['run'](self)
 
     def create_text_widget(self):
         self.central_widget = QWidget()
@@ -84,19 +94,13 @@ class CSVGUI(QMainWindow):
         self.layout.addWidget(self.text_widget)
 
     def show_about(self):
-        track_button_press('About', self.button_log)
+        track_button_press('About', self.button_log, self.button_categories)
         about_message = "CSV Reflector\nVersion 1.0\n© 2024 MyCorp\nA tool for CSV manipulation and reflection."
         QMessageBox.information(self, "About", about_message)
-
-    def show_date(self):
-        track_button_press('Date', self.button_log)
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.text_widget.clear()
-        self.text_widget.setText(f"Current Date and Time: {now}")
 
     def save_button_log(self):
         save_button_log(self.button_log, self.button_log_file)
 
     def exit_application(self):
-        track_button_press('Exit', self.button_log)
+        track_button_press('Exit', self.button_log, self.button_categories)
         self.close()

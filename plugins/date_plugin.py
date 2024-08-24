@@ -1,6 +1,5 @@
 # plugins/date_plugin.py
 
-from PyQt6.QtWidgets import QMessageBox
 from datetime import datetime
 
 def run_plugin(gui):

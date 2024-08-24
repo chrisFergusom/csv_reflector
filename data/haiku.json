@@ -1,0 +1,29 @@
+{
+    "syllables": {
+        "one": {
+            "nouns": ["cat", "dog", "sky", "tree", "fish"],
+            "verbs": ["run", "jump", "swim", "talk", "eat"],
+            "adjectives": ["hot", "cold", "fast", "dark", "big"]
+        },
+        "two": {
+            "nouns": ["apple", "river", "mountain", "city", "flower"],
+            "verbs": ["carry", "whisper", "follow", "wonder", "listen"],
+            "adjectives": ["silent", "gentle", "happy", "lonely", "cloudy"]
+        },
+        "three": {
+            "nouns": ["butterfly", "elephant", "chocolate", "universe", "computer"],
+            "verbs": ["celebrate", "contemplate", "remember", "navigate", "concentrate"],
+            "adjectives": ["beautiful", "delicate", "cartoonish", "dangerous", "musical"]
+        },
+        "four": {
+            "nouns": ["celebration", "information", "borderlands", "discovery", "exploration"],
+            "verbs": ["investigate", "accelerate", "communicate", "appreciate", "exaggerate"],
+            "adjectives": ["mysterious", "impossible", "colorable", "destandable", "inspiration"]
+        },
+        "five": {
+            "nouns": ["congratulation", "responsibillet", "individual", "insignificance", "hallucination"],
+            "verbs": ["misunderstanded", "revolutionize", "discombobulate", "misinterpret", "disseminated"],
+            "adjectives": ["incomprehensile", "uncontrollable", "unquestionable", "disproportionate", "indiscriminate"]
+        }
+    }
+}

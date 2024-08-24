@@ -82,21 +82,21 @@ def apply_operation(gui, operation):
     display_data_with_info(gui)
 
 def rotate_data(gui):
-    track_button_press('Rotate', gui.button_log)
+    track_button_press('Rotate', gui.button_log, gui.button_categories)
     apply_operation(gui, 'rotate')
 
 def reflect_data(gui):
-    track_button_press('Reflect', gui.button_log)
+    track_button_press('Reflect', gui.button_log, gui.button_categories)
     apply_operation(gui, 'reflect')
 
 def flip_data(gui):
-    track_button_press('Flip', gui.button_log)
+    track_button_press('Flip', gui.button_log, gui.button_categories)
     apply_operation(gui, 'flip')
 
 def random_data(gui):
-    track_button_press('Random', gui.button_log)
+    track_button_press('Random', gui.button_log, gui.button_categories)
     apply_operation(gui, 'random')
 
 def restore_data(gui):
-    track_button_press('Restore', gui.button_log)
+    track_button_press('Restore', gui.button_log, gui.button_categories)
     apply_operation(gui, 'restore')

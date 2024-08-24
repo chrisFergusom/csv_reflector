@@ -5,7 +5,7 @@ import pandas as pd
 from button_tracking import track_button_press
 
 def load_file(gui):
-    track_button_press('Load', gui.button_log)
+    track_button_press('Load', gui.button_log, gui.button_categories)
     file_path, file_type = QFileDialog.getOpenFileName(gui, "Open File", "", "CSV Files (*.csv);;Excel Files (*.xlsx);;JSON Files (*.json)")
     if file_path:
         try:
@@ -29,7 +29,7 @@ def load_json(file_path):
     return df
 
 def save_file(gui):
-    track_button_press('Save', gui.button_log)
+    track_button_press('Save', gui.button_log, gui.button_categories)
     file_path, file_type = QFileDialog.getSaveFileName(gui, "Save File", "", "CSV Files (*.csv);;Excel Files (*.xlsx);;JSON Files (*.json)")
     if file_path:
         try:

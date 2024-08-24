@@ -57,7 +57,7 @@ class TextFormattingDialog(QDialog):
         return font
 
 def apply_text_formatting(gui):
-    track_button_press('Text', gui.button_log)
+    track_button_press('Text', gui.button_log, gui.button_categories)
     dialog = TextFormattingDialog(gui)
     if dialog.exec() == QDialog.DialogCode.Accepted:
         cursor = gui.text_widget.textCursor()

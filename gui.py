@@ -5,11 +5,10 @@ from PyQt6.QtGui import QFont
 import atexit
 from collections import OrderedDict
 
-from file_operations import load_file, save_file
-from data_operations import reflect_data, flip_data, rotate_data, random_data, restore_data
-from button_tracking import load_button_log, save_button_log, track_button_press, show_button_info
-from text_formatting import apply_text_formatting
 from plugin_manager import PluginManager
+from button_tracking import track_button_press, load_button_log, save_button_log, show_button_info
+from file_operations import load_file, save_file
+from text_formatting import apply_text_formatting
 
 class CSVGUI(QMainWindow):
     def __init__(self):
@@ -24,63 +23,72 @@ class CSVGUI(QMainWindow):
             ('Edit', ['Reflect', 'Flip', 'Rotate', 'Random', 'Restore']),
             ('Options', ['Text']),
             ('Info', ['About', 'Button Info']),
-            ('Plugins', [])  # This should be an empty list
+            ('Tools', [])
         ])
         self.button_log_file = 'data/button_log.json'
         self.button_log = load_button_log(self.button_log_file)
         atexit.register(self.save_button_log)
         
-        # Initialize plugin manager
         self.plugin_manager = PluginManager()
-        self.plugin_manager.load_plugins('plugins')  # Load plugins from 'plugins' directory
-        
+        self.plugin_manager.load_plugins('plugins')
         self.create_menu()
         self.create_text_widget()
         self.show()
 
     def create_menu(self):
         menubar = self.menuBar()
-        
-        file_menu = menubar.addMenu("File")
-        load_action = file_menu.addAction("Load")
-        load_action.triggered.connect(lambda: load_file(self))
-        save_action = file_menu.addAction("Save")
-        save_action.triggered.connect(lambda: save_file(self))
-        exit_action = file_menu.addAction("Exit")
-        exit_action.triggered.connect(self.exit_application)
+        menubar.clear()
 
-        edit_menu = menubar.addMenu("Edit")
-        reflect_action = edit_menu.addAction("Reflect")
-        reflect_action.triggered.connect(lambda: reflect_data(self))
-        flip_action = edit_menu.addAction("Flip")
-        flip_action.triggered.connect(lambda: flip_data(self))
-        rotate_action = edit_menu.addAction("Rotate")
-        rotate_action.triggered.connect(lambda: rotate_data(self))
-        random_action = edit_menu.addAction("Random")
-        random_action.triggered.connect(lambda: random_data(self))
-        restore_action = edit_menu.addAction("Restore")
-        restore_action.triggered.connect(lambda: restore_data(self))
+        self.menus = {
+            "File": menubar.addMenu("File"),
+            "Edit": menubar.addMenu("Edit"),
+            "Options": menubar.addMenu("Options"),
+            "Info": menubar.addMenu("Info"),
+            "Tools": menubar.addMenu("Tools")
+        }
 
-        options_menu = menubar.addMenu("Options")
-        text_action = options_menu.addAction("Text")
-        text_action.triggered.connect(lambda: apply_text_formatting(self))
+        self.add_menu_items()
 
-        info_menu = menubar.addMenu("Info")
-        about_action = info_menu.addAction("About")
-        about_action.triggered.connect(self.show_about)
-        button_info_action = info_menu.addAction("Button Info")
-        button_info_action.triggered.connect(lambda: show_button_info(self))
+    def add_menu_items(self):
+        standard_actions = {
+            "File": [
+                ("Load", lambda: load_file(self)),
+                ("Save", lambda: save_file(self)),
+                ("Exit", self.exit_application)
+            ],
+            "Options": [
+                ("Text", lambda: apply_text_formatting(self))
+            ],
+            "Info": [
+                ("About", self.show_about),
+                ("Button Info", lambda: show_button_info(self))
+            ]
+        }
 
-        # Add Plugins menu
-        plugins_menu = menubar.addMenu("Plugins")
-        for plugin_name, plugin_info in self.plugin_manager.get_all_plugins().items():
-            plugin_action = plugins_menu.addAction(plugin_info['name'])
-            plugin_action.triggered.connect(lambda checked, p=plugin_name: self.run_plugin(p))
+        # Add standard menu items
+        for menu_name, actions in standard_actions.items():
+            for action_name, action_func in actions:
+                action = self.menus[menu_name].addAction(action_name)
+                action.triggered.connect(lambda checked, n=action_name, f=action_func: self.run_action(n, f))
 
-    def run_plugin(self, plugin_name):
-        plugin = self.plugin_manager.get_plugin(plugin_name)
+        # Add plugin menu items
+        for menu_name, plugins in self.plugin_manager.get_all_plugins().items():
+            if menu_name not in self.menus:
+                self.menus[menu_name] = self.menuBar().addMenu(menu_name)
+            
+            for plugin_name, plugin_info in plugins.items():
+                action = self.menus[menu_name].addAction(plugin_name)
+                action.triggered.connect(lambda checked, m=menu_name, n=plugin_name: self.run_plugin(m, n))
+
+
+    def run_action(self, action_name, action_func):
+        track_button_press(action_name, self.button_log, self.button_categories)
+        action_func()
+
+    def run_plugin(self, menu_name, plugin_name):
+        plugin = self.plugin_manager.get_plugin(menu_name, plugin_name)
         if plugin and 'run' in plugin:
-            track_button_press(f'Plugin: {plugin["name"]}', self.button_log, self.button_categories)
+            track_button_press(f'{menu_name}:{plugin_name}', self.button_log, self.button_categories)
             plugin['run'](self)
 
     def create_text_widget(self):

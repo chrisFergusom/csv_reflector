@@ -18,10 +18,14 @@ class PluginManager:
                 
                 if hasattr(module, 'register_plugin'):
                     plugin_info = module.register_plugin()
-                    self.plugins[plugin_name] = plugin_info
+                    full_name = plugin_info['name']
+                    menu, name = full_name.split(':')
+                    if menu not in self.plugins:
+                        self.plugins[menu] = {}
+                    self.plugins[menu][name] = plugin_info
 
-    def get_plugin(self, name):
-        return self.plugins.get(name)
+    def get_plugin(self, menu, name):
+        return self.plugins.get(menu, {}).get(name)
 
     def get_all_plugins(self):
         return self.plugins

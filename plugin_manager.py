@@ -2,10 +2,18 @@
 
 import os
 import importlib.util
+from collections import OrderedDict
 
 class PluginManager:
     def __init__(self):
         self.plugins = {}
+        self.button_categories = OrderedDict([
+            ('File', []),
+            ('Edit', []),
+            ('Options', []),
+            ('Info', []),
+            ('Tools', [])
+        ])
 
     def load_plugins(self, plugin_dir):
         for filename in os.listdir(plugin_dir):
@@ -23,6 +31,7 @@ class PluginManager:
                     if menu not in self.plugins:
                         self.plugins[menu] = {}
                     self.plugins[menu][name] = plugin_info
+                    self.button_categories[menu].append(name)
 
     def get_plugin(self, menu, name):
         return self.plugins.get(menu, {}).get(name)
